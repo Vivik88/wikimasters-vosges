@@ -3,59 +3,88 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Collection Wikimasters – Vosges</title>
 <style>
-/* Variables de couleurs exactes de l'Isère */
 :root{--paper:#0c1322;--paper2:#1c2840;--ink:#e8eef9;--mute:#8d9dba;--walnut:#d9998a;--walnut2:#f0b9a0;--green:#5fd0a0;--green2:#3f9f7d;--none:#27344f;--card:#141d31}
 *{box-sizing:border-box}
-body{margin:0;font-family:Georgia,'Linux Libertine','Times New Roman',serif;color:var(--ink);background:var(--paper);
- background-image:radial-gradient(ellipse at 80% 0,#3b2f5a66 0,#0000 55%),radial-gradient(ellipse at 10% 100%,#1f3a5c44 0,#0000 50%)}
-header{position:relative;height:270px;overflow:hidden;border-bottom:3px solid #d9998a}
+
+/* Structure globale pour s'adapter à l'écran sans scroller */
+body{
+    margin:0; font-family:Georgia,'Linux Libertine','Times New Roman',serif;
+    color:var(--ink); background:var(--paper);
+    background-image:radial-gradient(ellipse at 80% 0,#3b2f5a66 0,#0000 55%),radial-gradient(ellipse at 10% 100%,#1f3a5c44 0,#0000 50%);
+    display: flex; flex-direction: column; height: 100vh; overflow: hidden;
+}
+
+/* Bandeau affiné */
+header{
+    flex: 0 0 130px; position:relative; overflow:hidden; border-bottom:3px solid #d9998a;
+}
 header svg.hdr{position:absolute;inset:0;width:100%;height:100%}
-.title{position:relative;padding:26px 28px;max-width:1200px;margin:auto;z-index:2}
+.title{position:relative;padding:15px 28px;max-width:1200px;margin:auto;z-index:2}
 .kicker{font:700 .78rem system-ui,sans-serif;letter-spacing:.25em;text-transform:uppercase;color:#f6c9b6;background:#0c1322b8;display:inline-block;padding:3px 10px;border-radius:20px}
-h1{margin:8px 0 0;font-size:clamp(2.2rem,6vw,3.6rem);line-height:1;color:var(--ink);text-shadow:0 2px 14px #000b}
+h1{margin:8px 0 0;font-size:clamp(2rem,5vw,3rem);line-height:1;color:var(--ink);text-shadow:0 2px 14px #000b}
 h1 em{color:#f0a98f;font-style:normal}h1 sup{font-size:.35em;color:var(--walnut);letter-spacing:.1em}
-.sig{position:absolute;right:22px;bottom:14px;z-index:3;font:italic 700 1.05rem Georgia,serif;letter-spacing:.12em;color:#fbe3d6;text-shadow:0 1px 6px #000c}
-.rank{margin-top:10px;display:inline-block;background:#f0a98f;color:#2a1620;padding:5px 14px;border-radius:6px;font-size:.95rem;box-shadow:0 3px 0 #8a5448}
-main{display:grid;grid-template-columns:1fr 360px;gap:22px;max-width:1200px;margin:22px auto 40px;padding:0 20px}
-@media(max-width:900px){main{grid-template-columns:1fr}}
-.card{background:var(--card);border:2px solid #d9998a88;border-radius:14px;box-shadow:0 8px 24px #0008,inset 0 0 0 4px var(--card),inset 0 0 0 5px #d9998a33;padding:20px}
-.mapcard{position:relative;overflow:hidden}
+.sig{position:absolute;right:22px;bottom:10px;z-index:3;font:italic 700 1.05rem Georgia,serif;letter-spacing:.12em;color:#fbe3d6;text-shadow:0 1px 6px #000c}
+
+/* Contenu central adaptatif */
+main{
+    flex: 1; min-height: 0; display:grid; grid-template-columns:1fr 360px; gap:20px;
+    max-width:1200px; width:100%; margin:15px auto 10px; padding:0 20px;
+}
+@media(max-width:900px){main{grid-template-columns:1fr; overflow-y:auto;}}
+
+.card{background:var(--card);border:2px solid #d9998a88;border-radius:14px;box-shadow:0 8px 24px #0008,inset 0 0 0 4px var(--card),inset 0 0 0 5px #d9998a33;padding:15px}
+.mapcard{position:relative; overflow:hidden; display: flex; flex-direction: column;}
 .ribbon{position:absolute;top:14px;left:-34px;transform:rotate(-35deg);background:#d9998a;color:#2a1620;font:700 .72rem system-ui;letter-spacing:.2em;padding:5px 40px;z-index:2}
-#mapwrap{position:relative; width:100%; height:76vh; overflow:hidden;}
+
+/* Zone carte remplissant tout l'espace restant */
+#mapwrap{flex: 1; position:relative; min-height: 0;}
 svg#map{width:100%;height:100%;display:block;cursor:grab;touch-action:none}
+
 path{fill:var(--none);stroke:#141d31;stroke-width:.5;vector-effect:non-scaling-stroke; transition: fill 0.2s, filter 0.2s;}
-path.ok{fill:var(--green2)}path:hover{filter:brightness(.88); outline: none;}
+path.ok{fill:var(--green2)}
+path:hover{filter:brightness(.88); outline: none;}
 path.ok:hover{fill:var(--green)}
+
+/* Départements limitrophes */
+path.bg{fill:#101a2c;stroke:#4a5c84;stroke-width:1.1;pointer-events:none}
+.bgl{font:700 12px system-ui,sans-serif;letter-spacing:.22em;fill:#6d80a8;pointer-events:none}
+
 #tip{position:absolute;pointer-events:none;background:#f0a98f;color:#2a1620;padding:4px 9px;border-radius:6px;font:.82rem system-ui;display:none;white-space:nowrap; z-index: 1000; box-shadow: 0 2px 4px rgba(0,0,0,0.5);}
-.legend{display:flex;gap:16px;font:.8rem system-ui;color:var(--mute);margin-top:8px;align-items:center;flex-wrap:wrap}
+.legend{display:flex;gap:16px;font:.8rem system-ui;color:var(--mute);margin-top:10px;align-items:center;flex-wrap:wrap}
 .legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-1px}
-aside{display:flex;flex-direction:column;gap:14px}
-.tabs{display:grid;gap:10px}
-.tab{all:unset;cursor:pointer;display:grid;grid-template-columns:44px 1fr auto;align-items:center;gap:12px;background:var(--card);border:2px solid #d9998a88;border-radius:12px;padding:10px 14px;box-shadow:0 4px 0 #0007;transition:.15s}
+
+/* Barre latérale avec scroll autonome si nécessaire */
+aside{display:flex;flex-direction:column;gap:12px; overflow-y: auto; padding-right: 5px;}
+.tabs{display:grid;gap:8px}
+.tab{all:unset;cursor:pointer;display:grid;grid-template-columns:44px 1fr auto;align-items:center;gap:12px;background:var(--card);border:2px solid #d9998a88;border-radius:12px;padding:8px 12px;box-shadow:0 4px 0 #0007;transition:.15s}
 .tab:hover{transform:translateY(-2px)}
 .tab.active{background:#f0a98f;color:#2a1620;transform:translateY(2px);box-shadow:0 1px 0 #8a5448}
 .tab .ic{font-size:1.7rem;text-align:center}.tab b{display:block;font-size:1.02rem}.tab small{font:.74rem system-ui;opacity:.75}
 .tab .pc{font-size:1.4rem;font-weight:700;color:var(--green)}.tab.active .pc{color:#1b4d38}
+
 .detail{text-align:center}.detail h2{margin:0 0 6px;font-size:1.15rem;color:var(--walnut)}
-.ring{width:170px;height:170px;margin:4px auto 10px;position:relative}
+.ring{width:160px;height:160px;margin:4px auto 10px;position:relative}
 .ring svg{width:100%;height:100%;transform:rotate(-90deg)}.ring circle{fill:none;stroke-width:14}
 .ring .bg{stroke:var(--paper2)}.ring .fg{stroke:var(--green2);stroke-linecap:round;transition:stroke-dashoffset .8s}
-.ring .mid{position:absolute;inset:0;display:grid;place-content:center;font-size:2rem;font-weight:700;color:var(--green)}
+.ring .mid{position:absolute;inset:0;display:grid;place-content:center;font-size:1.8rem;font-weight:700;color:var(--green)}
 .ring .mid small{font:.7rem system-ui;color:var(--mute);text-align:center}
-.stat{display:flex;justify-content:space-between;padding:8px 4px;border-bottom:1px dashed #ffffff26;font-size:1rem}
+.stat{display:flex;justify-content:space-between;padding:6px 4px;border-bottom:1px dashed #ffffff26;font-size:0.95rem}
 .stat span{color:var(--mute)}.stat b.left{color:var(--walnut2)}
+
 .btns{display:flex;gap:8px;flex-wrap:wrap}
 button.b{font:inherit;background:var(--green2);color:#fff;border:0;border-radius:8px;padding:8px 14px;cursor:pointer;box-shadow:0 3px 0 #1d5a46; transition: 0.2s;}
 button.b:active { transform: translateY(3px); box-shadow: 0 0 0 #1d5a46; }
 button.b.alt{background:var(--paper2);color:var(--ink);box-shadow:0 3px 0 #0008}
 button.b.alt:active { box-shadow: 0 0 0 #0008; }
+
 #msg{font:.78rem system-ui;color:var(--mute);margin-top:8px;line-height:1.4}
 details{font:.88rem system-ui;color:var(--ink)}summary{cursor:pointer;color:var(--walnut);font-weight:600}
 input[type=text]{width:100%;padding:8px;border-radius:8px;border:1px solid #d9998a88;background:#0c1322;color:var(--ink);font:.82rem system-ui;margin:4px 0 8px}
-footer{text-align:center;color:var(--mute);font:.78rem system-ui;padding:0 0 30px}
+
+footer{flex: 0 0 20px; text-align:center; color:var(--mute); font:.78rem system-ui;}
 </style></head><body>
+
 <header>
-<!-- Fond décoratif SVG repris à l'identique -->
 <svg class="hdr" viewBox="0 0 1200 270" preserveAspectRatio="xMidYMax slice"><defs>
 <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0a1128"/><stop offset=".55" stop-color="#3a3560"/><stop offset="1" stop-color="#e3a392"/></linearGradient>
 <linearGradient id="litA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6b7a0"/><stop offset=".45" stop-color="#b9a3c2"/><stop offset="1" stop-color="#6d88bd"/></linearGradient>
@@ -67,21 +96,25 @@ footer{text-align:center;color:var(--mute);font:.78rem system-ui;padding:0 0 30p
 </defs><rect width="1200" height="270" fill="url(#sky)"/><circle cx="286" cy="65" r="0.7" fill="#fff" opacity="0.66"/><circle cx="751" cy="8" r="0.4" fill="#fff" opacity="0.80"/><circle cx="311" cy="28" r="1.3" fill="#fff" opacity="0.58"/><circle cx="1004" cy="57" r="1.0" fill="#fff" opacity="0.39"/><circle cx="762" cy="104" r="0.9" fill="#fff" opacity="0.74"/><circle cx="806" cy="8" r="1.1" fill="#fff" opacity="0.65"/><circle cx="362" cy="4" r="1.2" fill="#fff" opacity="0.58"/><circle cx="863" cy="105" r="1.0" fill="#fff" opacity="0.85"/><circle cx="474" cy="96" r="0.8" fill="#fff" opacity="0.86"/><circle cx="1055" cy="12" r="0.5" fill="#fff" opacity="0.43"/><circle cx="1159" cy="52" r="1.0" fill="#fff" opacity="0.48"/><circle cx="609" cy="46" r="0.7" fill="#fff" opacity="0.65"/><circle cx="701" cy="109" r="1.0" fill="#fff" opacity="0.86"/><circle cx="1028" cy="119" r="1.0" fill="#fff" opacity="0.40"/><circle cx="1033" cy="116" r="1.2" fill="#fff" opacity="0.64"/><circle cx="857" cy="25" r="1.1" fill="#fff" opacity="0.64"/><circle cx="342" cy="8" r="1.2" fill="#fff" opacity="0.89"/><circle cx="106" cy="96" r="0.8" fill="#fff" opacity="0.39"/><circle cx="353" cy="92" r="1.2" fill="#fff" opacity="0.33"/><circle cx="737" cy="5" r="1.0" fill="#fff" opacity="0.50"/><circle cx="1057" cy="118" r="0.9" fill="#fff" opacity="0.90"/><circle cx="372" cy="9" r="0.9" fill="#fff" opacity="0.32"/><circle cx="237" cy="49" r="0.9" fill="#fff" opacity="0.39"/><circle cx="51" cy="104" r="0.7" fill="#fff" opacity="0.88"/><circle cx="1076" cy="45" r="0.8" fill="#fff" opacity="0.61"/><circle cx="773" cy="71" r="0.9" fill="#fff" opacity="0.67"/><circle cx="1129" cy="61" r="0.8" fill="#fff" opacity="0.73"/><circle cx="285" cy="36" r="1.3" fill="#fff" opacity="0.61"/><circle cx="658" cy="1" r="0.8" fill="#fff" opacity="0.65"/><circle cx="24" cy="74" r="1.0" fill="#fff" opacity="0.34"/><circle cx="753" cy="56" r="1.0" fill="#fff" opacity="0.51"/><circle cx="848" cy="89" r="0.4" fill="#fff" opacity="0.34"/><circle cx="811" cy="116" r="0.6" fill="#fff" opacity="0.57"/><circle cx="711" cy="38" r="0.7" fill="#fff" opacity="0.49"/><circle cx="443" cy="71" r="0.7" fill="#fff" opacity="0.53"/><circle cx="927" cy="3" r="0.9" fill="#fff" opacity="0.74"/><circle cx="372" cy="27" r="1.1" fill="#fff" opacity="0.44"/><circle cx="225" cy="52" r="1.0" fill="#fff" opacity="0.36"/><circle cx="386" cy="40" r="1.2" fill="#fff" opacity="0.56"/><circle cx="1027" cy="20" r="0.7" fill="#fff" opacity="0.69"/><circle cx="1062" cy="54" r="0.6" fill="#fff" opacity="0.37"/><circle cx="636" cy="23" r="1.1" fill="#fff" opacity="0.80"/><circle cx="220" cy="33" r="1.1" fill="#fff" opacity="0.69"/><circle cx="968" cy="41" r="0.5" fill="#fff" opacity="0.48"/><circle cx="953" cy="33" r="0.7" fill="#fff" opacity="0.55"/><circle cx="504" cy="49" r="1.2" fill="#fff" opacity="0.39"/><circle cx="6" cy="113" r="1.2" fill="#fff" opacity="0.89"/><circle cx="521" cy="114" r="1.2" fill="#fff" opacity="0.43"/><circle cx="895" cy="100" r="1.0" fill="#fff" opacity="0.61"/><circle cx="347" cy="41" r="0.6" fill="#fff" opacity="0.34"/><circle cx="706" cy="34" r="1.1" fill="#fff" opacity="0.33"/><circle cx="1084" cy="83" r="1.2" fill="#fff" opacity="0.84"/><circle cx="1080" cy="69" r="0.4" fill="#fff" opacity="0.75"/><circle cx="206" cy="36" r="1.0" fill="#fff" opacity="0.61"/><circle cx="497" cy="113" r="1.0" fill="#fff" opacity="0.50"/><circle cx="303" cy="103" r="0.8" fill="#fff" opacity="0.77"/><circle cx="422" cy="24" r="0.9" fill="#fff" opacity="0.79"/><circle cx="206" cy="95" r="1.2" fill="#fff" opacity="0.78"/><circle cx="988" cy="1" r="1.0" fill="#fff" opacity="0.82"/><circle cx="60" cy="33" r="0.6" fill="#fff" opacity="0.62"/><circle cx="508" cy="57" r="1.1" fill="#fff" opacity="0.30"/><circle cx="66" cy="15" r="0.5" fill="#fff" opacity="0.34"/><circle cx="1170" cy="103" r="0.5" fill="#fff" opacity="0.60"/><circle cx="379" cy="38" r="0.7" fill="#fff" opacity="0.69"/><circle cx="704" cy="43" r="0.6" fill="#fff" opacity="0.50"/><circle cx="149" cy="67" r="1.0" fill="#fff" opacity="0.53"/><circle cx="96" cy="21" r="0.7" fill="#fff" opacity="0.66"/><circle cx="939" cy="46" r="1.1" fill="#fff" opacity="0.67"/><circle cx="518" cy="45" r="0.8" fill="#fff" opacity="0.72"/><circle cx="505" cy="83" r="0.8" fill="#fff" opacity="0.45"/><circle cx="1080" cy="86" r="44" fill="#ffd9c4" opacity=".16"/><circle cx="1080" cy="86" r="16" fill="#fff0e6" opacity=".9"/><g filter="url(#rough)" opacity=".55"><polygon points="70,270 96,256 111,236 145,225 183,202 207,191 218,169 240,158 278,142 300,120 329,139 350,154 357,171 377,182 418,197 424,214 465,232 466,258 500,270" fill="#4b4f80"/><polygon points="300,120 329,139 350,154 357,171 377,182 418,197 424,214 465,232 466,258 500,270 360,240 358,210 341,180 329,150" fill="url(#litB)"/><polygon points="540,270 575,253 596,227 620,215 643,191 668,185 676,157 713,146 729,119 760,105 783,125 824,140 843,159 872,177 894,197 945,214 968,228 996,255 1020,270" fill="#4b4f80"/><polygon points="760,105 783,125 824,140 843,159 872,177 894,197 945,214 968,228 996,255 1020,270 849,237 828,204 809,171 793,138" fill="url(#litB)"/></g><g filter="url(#rough)"><polygon points="-80,270 -45,248 -39,240 7,220 21,206 40,183 66,171 94,149 129,143 150,120 167,140 192,158 219,167 232,180 261,202 275,218 301,241 319,260 350,270" fill="#2c3858"/><polygon points="150,120 167,140 192,158 219,167 232,180 261,202 275,218 301,241 319,260 350,270 216,240 204,210 187,180 179,150" fill="url(#litA)"/><polygon points="117,223 139,227 130,238 113,232" fill="#1c2641" opacity=".75"/><polygon points="98,226 125,232 114,244 92,237" fill="#1c2641" opacity=".75"/><polygon points="92,189 108,194 102,204 89,198" fill="#1c2641" opacity=".75"/><polygon points="163,209 194,212 181,218 157,215" fill="#1c2641" opacity=".75"/><polygon points="105,163 119,167 114,177 102,172" fill="#1c2641" opacity=".75"/><polygon points="157,227 173,231 167,243 154,236" fill="#1c2641" opacity=".75"/><polygon points="115,175 142,177 131,182 109,179" fill="#1c2641" opacity=".75"/><polygon points="150,154 167,157 160,164 146,160" fill="#1c2641" opacity=".75"/><polygon points="133,200 144,203 139,210 131,206" fill="#1c2641" opacity=".75"/><polygon points="117,186 132,190 126,199 114,194" fill="#1c2641" opacity=".75"/><polygon points="94,236 117,238 108,243 89,240" fill="#1c2641" opacity=".75"/><polygon points="163,187 191,183 185,199 168,195" fill="#a9c0e4" opacity=".55"/><polygon points="35,251 102,248 89,258 40,256" fill="#a9c0e4" opacity=".55"/><polygon points="189,237 225,233 218,247 194,244" fill="#a9c0e4" opacity=".55"/><polygon points="196,225 231,221 224,236 201,233" fill="#a9c0e4" opacity=".55"/><polygon points="173,256 220,254 211,262 178,260" fill="#a9c0e4" opacity=".55"/><polygon points="108,209 164,205 153,219 113,216" fill="#a9c0e4" opacity=".55"/><polygon points="73,217 126,213 115,226 78,223" fill="#a9c0e4" opacity=".55"/><polygon points="195,178 248,176 238,184 200,182" fill="#a9c0e4" opacity=".55"/><polygon points="45,253 82,249 75,263 50,260" fill="#a9c0e4" opacity=".55"/><polygon points="390,270 411,251 431,230 442,206 455,194 491,172 509,149 517,130 550,105 560,92 582,108 611,129 623,150 650,175 668,196 684,207 706,225 744,253 760,270" fill="#2a3556"/><polygon points="560,92 582,108 611,129 623,150 650,175 668,196 684,207 706,225 744,253 760,270 621,234 607,199 597,163 588,128" fill="url(#litA)"/><polygon points="556,217 580,220 570,225 551,222" fill="#1c2641" opacity=".75"/><polygon points="518,166 540,170 531,179 513,174" fill="#1c2641" opacity=".75"/><polygon points="527,142 556,144 545,148 522,146" fill="#1c2641" opacity=".75"/><polygon points="569,216 602,219 589,226 563,222" fill="#1c2641" opacity=".75"/><polygon points="543,185 569,190 559,203 538,196" fill="#1c2641" opacity=".75"/><polygon points="518,201 548,205 536,213 511,209" fill="#1c2641" opacity=".75"/><polygon points="555,191 565,196 561,206 553,200" fill="#1c2641" opacity=".75"/><polygon points="534,198 557,202 548,210 530,205" fill="#1c2641" opacity=".75"/><polygon points="544,141 555,144 551,153 542,148" fill="#1c2641" opacity=".75"/><polygon points="531,196 554,202 545,214 526,207" fill="#1c2641" opacity=".75"/><polygon points="496,227 525,231 514,240 490,235" fill="#1c2641" opacity=".75"/><polygon points="545,138 578,136 572,144 550,142" fill="#a9c0e4" opacity=".55"/><polygon points="628,201 665,197 658,212 633,209" fill="#a9c0e4" opacity=".55"/><polygon points="494,221 557,217 545,230 499,227" fill="#a9c0e4" opacity=".55"/><polygon points="603,251 661,248 649,258 608,256" fill="#a9c0e4" opacity=".55"/><polygon points="641,235 705,232 692,243 646,241" fill="#a9c0e4" opacity=".55"/><polygon points="556,229 584,227 578,234 561,233" fill="#a9c0e4" opacity=".55"/><polygon points="528,142 557,139 551,150 533,148" fill="#a9c0e4" opacity=".55"/><polygon points="566,222 608,218 600,231 571,228" fill="#a9c0e4" opacity=".55"/><polygon points="555,171 613,168 601,179 560,176" fill="#a9c0e4" opacity=".55"/><polygon points="680,270 700,250 741,217 760,193 793,163 807,137 853,110 873,85 895,59 930,38 953,59 970,84 999,115 1022,134 1057,166 1088,186 1107,217 1123,251 1160,270" fill="#27325a"/><polygon points="930,38 953,59 970,84 999,115 1022,134 1057,166 1088,186 1107,217 1123,251 1160,270 1001,224 983,177 973,131 952,84" fill="url(#litA)"/><polygon points="873,173 886,175 881,180 871,177" fill="#1c2641" opacity=".75"/><polygon points="860,192 889,195 877,203 854,199" fill="#1c2641" opacity=".75"/><polygon points="854,228 870,231 864,237 851,234" fill="#1c2641" opacity=".75"/><polygon points="903,207 921,209 914,214 900,211" fill="#1c2641" opacity=".75"/><polygon points="947,184 971,186 962,190 942,187" fill="#1c2641" opacity=".75"/><polygon points="879,68 894,70 888,75 877,72" fill="#1c2641" opacity=".75"/><polygon points="918,73 949,75 937,81 911,78" fill="#1c2641" opacity=".75"/><polygon points="878,235 908,240 896,252 872,246" fill="#1c2641" opacity=".75"/><polygon points="816,229 833,233 826,243 812,237" fill="#1c2641" opacity=".75"/><polygon points="823,231 840,235 833,247 820,240" fill="#1c2641" opacity=".75"/><polygon points="897,83 915,88 908,97 893,92" fill="#1c2641" opacity=".75"/><polygon points="824,247 882,243 870,257 829,254" fill="#a9c0e4" opacity=".55"/><polygon points="927,230 993,227 980,238 932,235" fill="#a9c0e4" opacity=".55"/><polygon points="868,153 927,150 915,162 873,159" fill="#a9c0e4" opacity=".55"/><polygon points="866,127 923,123 912,136 871,134" fill="#a9c0e4" opacity=".55"/><polygon points="888,207 933,205 924,213 893,212" fill="#a9c0e4" opacity=".55"/><polygon points="803,207 847,203 838,218 808,215" fill="#a9c0e4" opacity=".55"/><polygon points="823,201 856,197 849,212 828,209" fill="#a9c0e4" opacity=".55"/><polygon points="1000,195 1064,192 1051,203 1005,201" fill="#a9c0e4" opacity=".55"/><polygon points="974,241 1012,238 1005,249 979,247" fill="#a9c0e4" opacity=".55"/><polygon points="1030,270 1036,251 1074,229 1082,211 1087,201 1107,175 1122,165 1149,139 1157,135 1180,110 1188,129 1207,150 1226,167 1239,177 1244,193 1274,211 1270,241 1288,258 1310,270" fill="#2f3d66"/><polygon points="1180,110 1188,129 1207,150 1226,167 1239,177 1244,193 1274,211 1270,241 1288,258 1310,270 1216,238 1213,206 1200,174 1201,142" fill="url(#litA)"/><polygon points="1167,200 1195,205 1184,216 1161,209" fill="#1c2641" opacity=".75"/><polygon points="1167,171 1187,174 1179,179 1162,176" fill="#1c2641" opacity=".75"/><polygon points="1161,223 1191,225 1179,231 1155,228" fill="#1c2641" opacity=".75"/><polygon points="1156,192 1183,194 1172,199 1150,196" fill="#1c2641" opacity=".75"/><polygon points="1160,171 1172,175 1167,184 1158,179" fill="#1c2641" opacity=".75"/><polygon points="1150,212 1175,216 1165,225 1144,220" fill="#1c2641" opacity=".75"/><polygon points="1155,157 1189,160 1175,168 1148,164" fill="#1c2641" opacity=".75"/><polygon points="1134,180 1150,183 1144,188 1131,185" fill="#1c2641" opacity=".75"/><polygon points="1171,233 1202,238 1189,251 1165,243" fill="#1c2641" opacity=".75"/><polygon points="1186,199 1209,203 1200,210 1182,206" fill="#1c2641" opacity=".75"/><polygon points="1185,235 1218,238 1205,246 1179,242" fill="#1c2641" opacity=".75"/><polygon points="1155,235 1225,231 1211,247 1160,243" fill="#a9c0e4" opacity=".55"/><polygon points="1216,182 1247,180 1241,188 1221,186" fill="#a9c0e4" opacity=".55"/><polygon points="1140,229 1187,226 1178,239 1145,236" fill="#a9c0e4" opacity=".55"/><polygon points="1193,154 1229,151 1222,162 1198,160" fill="#a9c0e4" opacity=".55"/><polygon points="1197,188 1255,185 1244,195 1202,193" fill="#a9c0e4" opacity=".55"/><polygon points="1156,161 1197,159 1189,167 1161,165" fill="#a9c0e4" opacity=".55"/><polygon points="1196,167 1252,162 1241,179 1201,175" fill="#a9c0e4" opacity=".55"/><polygon points="1228,258 1267,255 1259,264 1233,262" fill="#a9c0e4" opacity=".55"/><polygon points="1168,184 1215,181 1206,193 1173,190" fill="#a9c0e4" opacity=".55"/></g><rect y="150" width="1200" height="120" fill="url(#fog)"/><path d="M0,270 L0,236 Q300,214 620,236 Q900,252 1200,176 L1200,270Z" fill="url(#slope)"/><path d="M360,270 Q700,262 820,236 Q900,222 860,200" stroke="#fff" stroke-width="2.2" fill="none" opacity=".8"/><path d="M372,270 Q712,266 832,240 Q912,224 872,204" stroke="#fff" stroke-width="1.6" fill="none" opacity=".6"/><g><rect x="842" y="206" width="2.5" height="9" fill="#e6c24a"/><circle cx="843" cy="204" r="1.6" fill="#f2d3b8"/><rect x="852" y="207" width="2.5" height="9" fill="#4a9fd9"/><circle cx="853" cy="205" r="1.6" fill="#f2d3b8"/></g><rect width="1200" height="270" filter="url(#grain)" opacity=".25" style="mix-blend-mode:screen"/></svg>
 <div class="title"><span class="kicker">Collection Wikimasters</span>
 <h1>Vosges <em>·</em> <sup>88</sup></h1></div><div class="sig">✦ Bralos</div></header>
+
 <main>
 <div class="card mapcard"><div class="ribbon">VOSGES</div>
 <div id="mapwrap"><svg id="map" viewBox="0 0 800 800"></svg><div id="tip"></div></div>
 <div class="legend"><span><i style="background:var(--green2)"></i>Acquise</span><span><i style="background:var(--none)"></i>À trouver</span><span>Molette : zoom · glisser : déplacer</span></div></div>
+
 <aside>
 <div class="tabs" id="tabs">
  <button class="tab active" data-m="communes"><span class="ic">🏘️</span><span><b>Communes</b><small id="s-communes">–</small></span><span class="pc" id="p-communes">–</span></button>
  <button class="tab" data-m="pop"><span class="ic">👥</span><span><b>Habitants</b><small id="s-pop">–</small></span><span class="pc" id="p-pop">–</span></button>
  <button class="tab" data-m="sup"><span class="ic">⛰️</span><span><b>Superficie</b><small id="s-sup">–</small></span><span class="pc" id="p-sup">–</span></button>
 </div>
+
 <div class="card detail"><h2 id="dT">Communes</h2>
 <div class="ring"><svg viewBox="0 0 100 100"><circle class="bg" cx="50" cy="50" r="42"/><circle class="fg" id="fg" cx="50" cy="50" r="42" stroke-dasharray="263.9" stroke-dashoffset="263.9"/></svg><div class="mid"><span id="dPct">–</span><small>acquis</small></div></div>
 <div class="stat"><span>Acquis</span><b id="dOk">–</b></div>
 <div class="stat"><span>Total</span><b id="dTot">–</b></div>
 <div class="stat" style="border:0"><span>Restant</span><b class="left" id="dLeft">–</b></div></div>
+
 <div class="card"><div class="btns"><button class="b" id="refresh" onclick="window.location.reload()">↻ Actualiser</button><button class="b alt" id="resetzoom" onclick="resetPanZoom()">Recentrer</button></div>
 <div id="msg"></div>
 <details style="margin-top:10px"><summary>Paramètres</summary>
@@ -89,7 +122,8 @@ footer{text-align:center;color:var(--mute);font:.78rem system-ui;padding:0 0 30p
 <input type="text" id="url" value="https://docs.google.com/spreadsheets/d/e/2PACX-1vQ90ccINllWxVBGYRzSHaKCT_rRarpd1N5wpzu84rUZP5EJ8MViK8U0f-aFuKswcPOJm3w8c5smEw97/pub?gid=0&single=true&output=csv">
 </details>
 </div>
-</aside></main>
+</aside>
+</main>
 <footer><span style='color:#f0b9a0'>© Bralos</span> — 🌲 Forêt Noire · 🎿 Gérardmer · 🏔️ Massif des Vosges · 🍯 Sapin</footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
@@ -98,36 +132,32 @@ footer{text-align:center;color:var(--mute);font:.78rem system-ui;padding:0 0 30p
 <script>
     const csvUrl = document.getElementById('url').value;
     const geojsonUrl = "https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/departements/88-vosges/communes-88-vosges.geojson";
+    const deptsUrl = "https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/departements.geojson";
 
     // Variables globales
     let mapData = {}; 
     let globalStats = { com_acquis: 0, com_total: 0, hab_acquis: 0, hab_total: 0, sup_acquis: 0, sup_total: 0 };
     let currentMode = 'communes';
 
-    // D3.js setup
+    // Configuration de D3.js
     const svg = d3.select("#map");
     const tip = d3.select("#tip");
     const g = svg.append("g");
 
-    // Zoom & Pan Behavior
+    // Comportement Zoom & Drag
     const zoom = d3.zoom()
-        .scaleExtent([1, 8])
+        .scaleExtent([1, 10])
         .on("zoom", (event) => { g.attr("transform", event.transform); });
     svg.call(zoom);
 
-    window.resetPanZoom = function() {
-        svg.transition().duration(750).call(zoom.transform, d3.zoomIdentity);
-    }
-
-    // Projection cartographique centrée sur les Vosges
+    // Initialisation de la projection sur le quart Nord-Est
     const projection = d3.geoMercator().center([6.45, 48.19]).scale(13000).translate([400, 400]);
     const pathGenerator = d3.geoPath().projection(projection);
 
-    // Fonction de formatage des nombres (1 000,5)
     const formatNb = (num) => Math.round(num).toLocaleString('fr-FR');
     const calcPct = (acq, tot) => tot === 0 ? 0 : ((acq / tot) * 100);
 
-    // Mise à jour de l'affichage (Jauge & Stats)
+    // Mise à jour de l'affichage
     function updateDisplay() {
         let acq, tot, title;
 
@@ -142,29 +172,23 @@ footer{text-align:center;color:var(--mute);font:.78rem system-ui;padding:0 0 30p
         const pct = calcPct(acq, tot);
         const pctStr = pct.toFixed(1).replace('.', ',');
 
-        // Update Jauge
         document.getElementById('dT').innerText = title;
         document.getElementById('dPct').innerText = pctStr + '%';
         document.getElementById('dOk').innerText = formatNb(acq) + (currentMode === 'sup' ? ' km²' : '');
         document.getElementById('dTot').innerText = formatNb(tot) + (currentMode === 'sup' ? ' km²' : '');
         document.getElementById('dLeft').innerText = formatNb(tot - acq) + (currentMode === 'sup' ? ' km²' : '');
         
-        // Animation du cercle SVG (Circonférence = 263.9)
         const offset = 263.9 - (pct / 100) * 263.9;
         document.getElementById('fg').style.strokeDashoffset = offset;
 
-        // Update des petits onglets de gauche
         document.getElementById('s-communes').innerText = `${formatNb(globalStats.com_acquis)} / ${formatNb(globalStats.com_total)}`;
         document.getElementById('p-communes').innerText = calcPct(globalStats.com_acquis, globalStats.com_total).toFixed(1).replace('.', ',') + '%';
-        
         document.getElementById('s-pop').innerText = `${formatNb(globalStats.hab_acquis)} / ${formatNb(globalStats.hab_total)}`;
         document.getElementById('p-pop').innerText = calcPct(globalStats.hab_acquis, globalStats.hab_total).toFixed(1).replace('.', ',') + '%';
-        
         document.getElementById('s-sup').innerText = `${formatNb(globalStats.sup_acquis)} / ${formatNb(globalStats.sup_total)} km²`;
         document.getElementById('p-sup').innerText = calcPct(globalStats.sup_acquis, globalStats.sup_total).toFixed(1).replace('.', ',') + '%';
     }
 
-    // Gestion des clics sur les onglets
     document.querySelectorAll('.tab').forEach(tab => {
         tab.addEventListener('click', function() {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -174,7 +198,7 @@ footer{text-align:center;color:var(--mute);font:.78rem system-ui;padding:0 0 30p
         });
     });
 
-    // Chargement CSV puis GeoJSON
+    // Chargement CSV et Données Cartographiques (GeoJSON)
     Papa.parse(csvUrl, {
         download: true,
         header: true,
@@ -201,16 +225,54 @@ footer{text-align:center;color:var(--mute);font:.78rem system-ui;padding:0 0 30p
 
             updateDisplay();
 
-            // Dessin de la carte D3
-            d3.json(geojsonUrl).then(function(geo) {
-                g.selectAll("path")
-                 .data(geo.features)
+            // Rendu D3 avec Départements + Vosges
+            Promise.all([
+                d3.json(deptsUrl),
+                d3.json(geojsonUrl)
+            ]).then(function([deptsGeo, vosgesGeo]) {
+                
+                const limitrophes = ['52', '54', '55', '67', '68', '70', '90'];
+                const filteredDepts = deptsGeo.features.filter(f => limitrophes.includes(f.properties.code));
+
+                // Cadrage parfait sur les Vosges (ignorant le fond des autres départements pour le calcul)
+                const bounds = pathGenerator.bounds(vosgesGeo);
+                const dx = bounds[1][0] - bounds[0][0];
+                const dy = bounds[1][1] - bounds[0][1];
+                const x = (bounds[0][0] + bounds[1][0]) / 2;
+                const y = (bounds[0][1] + bounds[1][1]) / 2;
+                const scale = Math.max(1, Math.min(8, 0.85 / Math.max(dx / 800, dy / 800)));
+                const translate = [800 / 2 - scale * x, 800 / 2 - scale * y];
+                
+                const initTransform = d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale);
+
+                // 1. Tracés des départements limitrophes
+                g.selectAll("path.bg")
+                 .data(filteredDepts)
+                 .enter()
+                 .append("path")
+                 .attr("d", pathGenerator)
+                 .attr("class", "bg");
+
+                // 2. Noms des départements
+                g.selectAll("text.bgl")
+                 .data(filteredDepts)
+                 .enter()
+                 .append("text")
+                 .attr("class", "bgl")
+                 .attr("transform", d => `translate(${pathGenerator.centroid(d)})`)
+                 .attr("text-anchor", "middle")
+                 .attr("dy", ".35em")
+                 .text(d => d.properties.nom);
+
+                // 3. Tracés des communes des Vosges
+                g.selectAll("path.commune")
+                 .data(vosgesGeo.features)
                  .enter()
                  .append("path")
                  .attr("d", pathGenerator)
                  .attr("class", d => {
                      const insee = d.properties.code;
-                     return (mapData[insee] && mapData[insee].acquis) ? "ok" : "";
+                     return "commune " + ((mapData[insee] && mapData[insee].acquis) ? "ok" : "");
                  })
                  .on("mouseover", function(event, d) {
                      const insee = d.properties.code;
@@ -227,16 +289,11 @@ footer{text-align:center;color:var(--mute);font:.78rem system-ui;padding:0 0 30p
                      tip.style("display", "none");
                  });
 
-                 // Ajuster le zoom au chargement
-                 const bounds = pathGenerator.bounds(geo);
-                 const dx = bounds[1][0] - bounds[0][0];
-                 const dy = bounds[1][1] - bounds[0][1];
-                 const x = (bounds[0][0] + bounds[1][0]) / 2;
-                 const y = (bounds[0][1] + bounds[1][1]) / 2;
-                 const scale = Math.max(1, Math.min(8, 0.9 / Math.max(dx / 800, dy / 800)));
-                 const translate = [800 / 2 - scale * x, 800 / 2 - scale * y];
-                 
-                 svg.call(zoom.transform, d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale));
+                 svg.call(zoom.transform, initTransform);
+
+                 window.resetPanZoom = function() {
+                     svg.transition().duration(750).call(zoom.transform, initTransform);
+                 }
             });
         }
     });
