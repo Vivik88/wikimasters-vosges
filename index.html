@@ -4,170 +4,166 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Collection Wikimasters - Vosges</title>
-    <!-- Polices -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
+    <!-- Polices Cyberpunk -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
     <!-- Leaflet -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     
     <style>
         :root {
-            --bg-main: #14121e;
-            --bg-panel: #1b1929;
-            --bg-card: #221f35;
-            --color-acquis: #3ab584;
-            --color-vide: #24223d;
-            --color-map-border: #14121e;
-            --color-text: #ffffff;
-            --color-text-muted: #84829a;
-            --color-accent: #e5a473;
-            --border-subtle: 1px solid #322e4c;
+            --bg-main: #06060a;
+            --bg-panel: rgba(12, 12, 20, 0.85);
+            --bg-card: rgba(20, 20, 35, 0.6);
+            --color-acquis: #00ffcc; /* Néon Cyan */
+            --color-vide: #1a0b2e; /* Violet sombre */
+            --color-map-border: #ff0055; /* Néon Rose */
+            --color-text: #e0e0e0;
+            --color-text-muted: #ff0055;
+            --color-accent: #fcee0a; /* Jaune Cyberpunk */
+            --border-neon: 1px solid var(--color-map-border);
+            --box-glow: 0 0 10px rgba(255, 0, 85, 0.3), inset 0 0 10px rgba(255, 0, 85, 0.1);
         }
 
         body {
             background-color: var(--bg-main);
             color: var(--color-text);
-            font-family: 'Inter', sans-serif;
+            font-family: 'Rajdhani', sans-serif;
             margin: 0;
             padding: 20px;
             display: flex;
             flex-direction: column;
             height: 100vh;
             box-sizing: border-box;
-            background-image: linear-gradient(to bottom, #1c1a2d 0%, #14121e 250px);
+            /* Grille Cyberpunk */
+            background-image: 
+                linear-gradient(rgba(0, 255, 204, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 204, 0.05) 1px, transparent 1px);
+            background-size: 30px 30px;
         }
 
-        /* Header / Titre */
-        .header { text-align: center; margin-bottom: 20px; position: relative; z-index: 2; }
-        .header-sub { color: var(--color-text-muted); font-size: 0.75em; letter-spacing: 2px; text-transform: uppercase; font-weight: 600; margin-bottom: 5px; }
-        .header-title { font-family: 'Playfair Display', serif; font-size: 3.5em; margin: 0; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .header-title span { color: var(--color-accent); font-size: 0.4em; font-family: 'Inter', sans-serif; font-style: normal; font-weight: bold; }
-        .badge { background: rgba(229, 164, 115, 0.2); color: var(--color-accent); border: 1px solid var(--color-accent); padding: 5px 15px; border-radius: 4px; font-size: 0.8em; font-weight: 600; display: inline-block; margin-top: 10px; }
+        .header { text-align: center; margin-bottom: 20px; position: relative; z-index: 2; text-transform: uppercase; }
+        .header-sub { color: var(--color-acquis); font-size: 1em; letter-spacing: 4px; font-family: 'Orbitron', sans-serif; margin-bottom: 5px; text-shadow: 0 0 5px var(--color-acquis); }
+        .header-title { font-family: 'Orbitron', sans-serif; font-size: 4em; margin: 0; color: #fff; text-shadow: 0 0 15px var(--color-map-border), 0 0 30px var(--color-map-border); letter-spacing: 2px; }
+        .header-title span { color: var(--color-accent); font-size: 0.4em; text-shadow: none; vertical-align: super; }
 
-        /* Conteneur principal */
         .dashboard { display: flex; gap: 20px; flex: 1; min-height: 0; }
 
-        /* Zone Carte (Gauche) */
-        .map-section { flex: 1; background: var(--bg-panel); border: var(--border-subtle); border-radius: 8px; position: relative; overflow: hidden; display: flex; flex-direction: column; }
-        #map { flex: 1; background: transparent; z-index: 1; }
-        .leaflet-container { font-family: 'Inter', sans-serif; }
+        /* Carte */
+        .map-section { flex: 1; background: var(--bg-panel); border: var(--border-neon); box-shadow: var(--box-glow); border-radius: 4px; position: relative; overflow: hidden; display: flex; flex-direction: column; }
+        #map { flex: 1; z-index: 1; }
+        .leaflet-container { background: transparent !important; font-family: 'Rajdhani', sans-serif; }
         
-        /* Ruban "VOSGES" */
         .ribbon {
-            position: absolute; top: 25px; left: -35px; background: var(--color-accent); color: var(--bg-main); padding: 5px 40px;
-            font-weight: 800; font-size: 0.8em; transform: rotate(-45deg); z-index: 1000; letter-spacing: 1px; box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+            position: absolute; top: 25px; left: -35px; background: var(--color-accent); color: #000; padding: 5px 40px;
+            font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 0.9em; transform: rotate(-45deg); z-index: 1000; box-shadow: 0 0 15px var(--color-accent);
         }
 
-        /* Légende Carte */
-        .map-legend { position: absolute; bottom: 15px; left: 15px; z-index: 1000; display: flex; gap: 15px; font-size: 0.8em; color: var(--color-text-muted); background: rgba(27, 25, 41, 0.8); padding: 5px 10px; border-radius: 4px; }
-        .legend-item { display: flex; align-items: center; gap: 6px; }
-        .legend-box { width: 12px; height: 12px; border-radius: 2px; }
-        .legend-box.acquis { background: var(--color-acquis); }
-        .legend-box.vide { background: var(--color-vide); border: 1px solid #4a4768; }
+        .map-legend { position: absolute; bottom: 15px; left: 15px; z-index: 1000; display: flex; gap: 15px; font-size: 1.1em; font-weight: 600; color: var(--color-text); background: rgba(0, 0, 0, 0.8); border: 1px solid var(--color-acquis); padding: 8px 15px; text-transform: uppercase; }
+        .legend-item { display: flex; align-items: center; gap: 8px; }
+        .legend-box { width: 14px; height: 14px; }
+        .legend-box.acquis { background: var(--color-acquis); box-shadow: 0 0 8px var(--color-acquis); }
+        .legend-box.vide { background: var(--color-vide); border: 1px solid var(--color-map-border); }
 
-        /* Sidebar (Droite) */
+        /* Panneau Droit */
         .sidebar { width: 350px; display: flex; flex-direction: column; gap: 15px; overflow-y: auto; padding-right: 5px; }
 
-        /* Petites cartes stats */
-        .stat-card { background: var(--bg-panel); border: var(--border-subtle); border-radius: 8px; padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; }
+        .stat-card { background: var(--bg-card); border: var(--border-neon); box-shadow: var(--box-glow); padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; border-left: 4px solid var(--color-acquis); }
         .stat-left { display: flex; align-items: center; gap: 15px; }
-        .stat-icon { width: 30px; height: 30px; background: var(--bg-card); border: var(--border-subtle); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 1.1em; }
-        .stat-info h3 { margin: 0; font-size: 0.9em; font-weight: 600; color: #ddd; }
-        .stat-info p { margin: 3px 0 0; font-size: 0.75em; color: var(--color-text-muted); }
-        .stat-percent { font-size: 1.2em; font-weight: 700; color: var(--color-acquis); }
+        .stat-icon { width: 35px; height: 35px; background: rgba(0, 255, 204, 0.1); border: 1px solid var(--color-acquis); display: flex; align-items: center; justify-content: center; font-size: 1.2em; color: var(--color-acquis); }
+        .stat-info h3 { margin: 0; font-size: 1.1em; font-family: 'Orbitron', sans-serif; color: var(--color-text); text-transform: uppercase; }
+        .stat-info p { margin: 3px 0 0; font-size: 0.9em; font-weight: 600; color: var(--color-text-muted); }
+        .stat-percent { font-size: 1.8em; font-family: 'Orbitron', sans-serif; font-weight: 700; color: var(--color-acquis); text-shadow: 0 0 10px var(--color-acquis); }
 
-        /* Grande carte Jauge */
-        .gauge-card { background: var(--bg-panel); border: var(--border-subtle); border-radius: 8px; padding: 25px; text-align: center; }
-        .gauge-card h3 { margin: 0 0 20px; font-size: 1em; font-weight: 600; color: #ddd; }
+        .gauge-card { background: var(--bg-card); border: var(--border-neon); box-shadow: var(--box-glow); padding: 25px; text-align: center; position: relative; }
+        .gauge-card h3 { margin: 0 0 20px; font-size: 1.2em; font-family: 'Orbitron', sans-serif; text-transform: uppercase; letter-spacing: 2px; color: var(--color-accent); }
         
-        .donut-wrapper { position: relative; width: 140px; height: 140px; margin: 0 auto 30px; }
-        .donut-chart { width: 100%; height: 100%; border-radius: 50%; background: conic-gradient(var(--color-acquis) 0%, var(--bg-card) 0%); display: flex; align-items: center; justify-content: center; transition: background 1s ease; }
-        .donut-inner { width: 110px; height: 110px; background: var(--bg-panel); border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: inset 0 0 10px rgba(0,0,0,0.5); }
-        .donut-inner h2 { margin: 0; font-size: 1.8em; color: var(--color-text); }
-        .donut-inner span { font-size: 0.7em; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 1px; }
+        .donut-wrapper { position: relative; width: 160px; height: 160px; margin: 0 auto 30px; }
+        .donut-chart { width: 100%; height: 100%; border-radius: 50%; background: conic-gradient(var(--color-acquis) 0%, #111 0%); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(0, 255, 204, 0.2); }
+        .donut-inner { width: 130px; height: 130px; background: var(--bg-main); border-radius: 50%; border: 2px solid var(--bg-panel); display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .donut-inner h2 { margin: 0; font-size: 2.2em; font-family: 'Orbitron', sans-serif; color: #fff; text-shadow: 0 0 10px var(--color-acquis); }
+        .donut-inner span { font-size: 0.9em; color: var(--color-map-border); text-transform: uppercase; font-weight: 700; letter-spacing: 2px; }
 
         .gauge-stats { display: flex; flex-direction: column; gap: 10px; }
-        .gauge-row { display: flex; justify-content: space-between; font-size: 0.85em; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .gauge-row { display: flex; justify-content: space-between; font-size: 1.1em; padding-bottom: 8px; border-bottom: 1px solid rgba(255,0,85,0.3); font-weight: 600; }
         .gauge-row:last-child { border-bottom: none; padding-bottom: 0; }
-        .gauge-row .label { color: var(--color-text-muted); }
-        .gauge-row .value { font-weight: 600; }
+        .gauge-row .label { color: var(--color-text); text-transform: uppercase; }
+        .gauge-row .value { color: var(--color-acquis); font-family: 'Orbitron', sans-serif; }
+        
+        .action-card { background: var(--bg-card); border: var(--border-neon); padding: 20px; text-align: center; }
+        .buttons { display: flex; gap: 10px; margin-bottom: 15px; justify-content: center; }
+        .btn { padding: 10px 20px; font-family: 'Orbitron', sans-serif; font-size: 0.9em; text-transform: uppercase; font-weight: 700; cursor: pointer; border: none; transition: 0.3s; }
+        .btn-primary { background: var(--color-map-border); color: #fff; box-shadow: 0 0 10px var(--color-map-border); }
+        .btn-primary:hover { background: #fff; color: var(--color-map-border); box-shadow: 0 0 20px #fff; }
+        .btn-secondary { background: transparent; color: var(--color-acquis); border: 1px solid var(--color-acquis); }
+        .btn-secondary:hover { background: var(--color-acquis); color: #000; box-shadow: 0 0 15px var(--color-acquis); }
+        .action-text { font-size: 0.85em; color: rgba(255,255,255,0.5); font-weight: 600; }
 
-        /* Carte Actions */
-        .action-card { background: var(--bg-panel); border: var(--border-subtle); border-radius: 8px; padding: 20px; }
-        .buttons { display: flex; gap: 10px; margin-bottom: 15px; }
-        .btn { padding: 8px 15px; border-radius: 4px; font-size: 0.85em; font-weight: 600; cursor: pointer; border: none; font-family: 'Inter', sans-serif; transition: opacity 0.2s; }
-        .btn:hover { opacity: 0.8; }
-        .btn-primary { background: var(--color-acquis); color: #fff; }
-        .btn-secondary { background: var(--bg-card); color: var(--color-text); border: 1px solid #4a4768; }
-        .action-text { font-size: 0.7em; color: var(--color-text-muted); line-height: 1.5; }
-
-        /* Popups Leaflet stylisées */
-        .leaflet-popup-content-wrapper, .leaflet-popup-tip { background: var(--bg-card); color: var(--color-text); box-shadow: 0 4px 15px rgba(0,0,0,0.5); border: 1px solid #322e4c; }
-        .leaflet-popup-content { margin: 12px; font-family: 'Inter', sans-serif; }
-        .leaflet-popup-content b { color: var(--color-accent); display: block; margin-bottom: 5px; font-size: 1.1em; }
+        /* Tooltips & Popups */
+        .cyber-tooltip { background: transparent; border: none; box-shadow: none; color: var(--color-accent); font-family: 'Orbitron', sans-serif; font-size: 1.2em; text-shadow: 0 0 5px var(--color-accent), 0 0 15px #000, 0 0 20px #000; text-transform: uppercase; font-weight: 900; }
+        .leaflet-tooltip-left::before, .leaflet-tooltip-right::before, .leaflet-tooltip-top::before, .leaflet-tooltip-bottom::before { display: none !important; }
+        .leaflet-popup-content-wrapper, .leaflet-popup-tip { background: var(--bg-main); color: var(--color-text); box-shadow: 0 0 20px var(--color-map-border); border: 1px solid var(--color-map-border); }
+        .leaflet-popup-content { font-family: 'Rajdhani', sans-serif; font-size: 1.1em; }
+        .leaflet-popup-content b { color: var(--color-acquis); font-family: 'Orbitron', sans-serif; display: block; margin-bottom: 5px; font-size: 1.2em; text-transform: uppercase; }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <div class="header-sub">COLLECTION WIKIMASTERS - VOSGES</div>
-        <h1 class="header-title">Vosges <span>• 88</span></h1>
-        <div class="badge">🔺 Randonneur aguerri</div>
+        <div class="header-sub">SYS_CONNECT // WIKIMASTERS</div>
+        <h1 class="header-title">VOSGES <span>[88]</span></h1>
     </div>
 
     <div class="dashboard">
-        <!-- Zone Carte -->
         <div class="map-section">
-            <div class="ribbon">VOSGES</div>
+            <div class="ribbon">ZONE_88</div>
             <div id="map"></div>
             <div class="map-legend">
-                <div class="legend-item"><div class="legend-box acquis"></div> Acquise</div>
-                <div class="legend-item"><div class="legend-box vide"></div> À trouver</div>
+                <div class="legend-item"><div class="legend-box acquis"></div> Données extraites</div>
+                <div class="legend-item"><div class="legend-box vide"></div> Secteurs cryptés</div>
             </div>
         </div>
 
-        <!-- Zone Statistiques -->
         <div class="sidebar">
-            
             <div class="stat-card">
                 <div class="stat-left">
-                    <div class="stat-icon">🏠</div>
+                    <div class="stat-icon">⬡</div>
                     <div class="stat-info">
                         <h3>Communes</h3>
                         <p><span id="com-acquis">0</span> / <span id="com-total">0</span></p>
                     </div>
                 </div>
-                <div class="stat-percent"><span id="com-pct">0</span> %</div>
+                <div class="stat-percent"><span id="com-pct">0</span>%</div>
             </div>
 
             <div class="stat-card">
                 <div class="stat-left">
-                    <div class="stat-icon">👥</div>
+                    <div class="stat-icon">👤</div>
                     <div class="stat-info">
                         <h3>Habitants</h3>
                         <p><span id="hab-acquis">0</span> / <span id="hab-total">0</span></p>
                     </div>
                 </div>
-                <div class="stat-percent"><span id="hab-pct">0</span> %</div>
+                <div class="stat-percent"><span id="hab-pct">0</span>%</div>
             </div>
 
             <div class="stat-card">
                 <div class="stat-left">
-                    <div class="stat-icon">⛰️</div>
+                    <div class="stat-icon">⛶</div>
                     <div class="stat-info">
                         <h3>Superficie</h3>
                         <p><span id="sup-acquis">0</span> / <span id="sup-total">0</span> km²</p>
                     </div>
                 </div>
-                <div class="stat-percent"><span id="sup-pct">0</span> %</div>
+                <div class="stat-percent"><span id="sup-pct">0</span>%</div>
             </div>
 
             <div class="gauge-card">
-                <h3>Communes</h3>
+                <h3>Progression Globale</h3>
                 <div class="donut-wrapper">
                     <div class="donut-chart" id="donut">
                         <div class="donut-inner">
                             <h2 id="donut-pct">0%</h2>
-                            <span>acquis</span>
+                            <span>Hacké</span>
                         </div>
                     </div>
                 </div>
@@ -178,44 +174,41 @@
                     </div>
                     <div class="gauge-row">
                         <span class="label">Total</span>
-                        <span class="value" id="gauge-total">0</span>
+                        <span class="value" style="color: #fff;" id="gauge-total">0</span>
                     </div>
                     <div class="gauge-row">
-                        <span class="label">Restant</span>
-                        <span class="value" id="gauge-restant" style="color: var(--color-accent)">0</span>
+                        <span class="label">Cibles Restantes</span>
+                        <span class="value" id="gauge-restant" style="color: var(--color-map-border); text-shadow: 0 0 5px var(--color-map-border);">0</span>
                     </div>
                 </div>
             </div>
 
             <div class="action-card">
                 <div class="buttons">
-                    <button class="btn btn-primary" onclick="window.location.reload()">↻ Actualiser</button>
-                    <button class="btn btn-secondary" onclick="recentrerCarte()">Recentrer</button>
+                    <button class="btn btn-primary" onclick="window.location.reload()">SYNC</button>
+                    <button class="btn btn-secondary" onclick="recentrerCarte()">FOCUS</button>
                 </div>
-                <div class="action-text">
-                    Mis à jour en temps réel via Google Sheets.<br>
-                    Données INSEE - Polygones GeoJSON.
-                </div>
+                <div class="action-text">LIEN ACTIF : API_GOUV / GITHUB_PAGES</div>
             </div>
-
         </div>
     </div>
 
-    <!-- Scripts -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     
     <script>
         const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ90ccINllWxVBGYRzSHaKCT_rRarpd1N5wpzu84rUZP5EJ8MViK8U0f-aFuKswcPOJm3w8c5smEw97/pub?gid=0&single=true&output=csv";
         const geojsonUrl = "https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/departements/88-vosges/communes-88-vosges.geojson";
+        const deptsUrl = "https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/departements.geojson";
+        
+        // Liste des départements frontaliers
+        const limitrophes = ['52', '54', '55', '67', '68', '70', '90'];
 
-        // Map init - on retire les contrôles de zoom natifs pour faire plus propre, comme sur l'image
         const map = L.map('map', { zoomControl: false, attributionControl: false }).setView([48.19, 6.45], 9);
-        const bounds = []; // Pour la fonction recentrer
+        const bounds = []; 
 
         function recentrerCarte() {
             if(bounds.length > 0) map.fitBounds(bounds);
-            else map.setView([48.19, 6.45], 9);
         }
 
         Papa.parse(csvUrl, {
@@ -246,53 +239,59 @@
 
                 const formatNb = (num) => Math.round(num).toLocaleString('fr-FR');
                 const calcPct = (acq, tot) => tot === 0 ? 0 : ((acq / tot) * 100);
-                
                 const comPct = calcPct(stats.com_acquis, stats.com_total).toFixed(1);
 
-                // MAJ Textes Stats
                 document.getElementById('com-total').innerText = stats.com_total;
                 document.getElementById('com-acquis').innerText = stats.com_acquis;
                 document.getElementById('com-pct').innerText = comPct.replace('.', ',');
-
                 document.getElementById('hab-total').innerText = formatNb(stats.hab_total);
                 document.getElementById('hab-acquis').innerText = formatNb(stats.hab_acquis);
                 document.getElementById('hab-pct').innerText = calcPct(stats.hab_acquis, stats.hab_total).toFixed(1).replace('.', ',');
-
                 document.getElementById('sup-total').innerText = formatNb(stats.sup_total);
                 document.getElementById('sup-acquis').innerText = formatNb(stats.sup_acquis);
                 document.getElementById('sup-pct').innerText = calcPct(stats.sup_acquis, stats.sup_total).toFixed(1).replace('.', ',');
 
-                // MAJ Grande Jauge et Détails
                 document.getElementById('donut-pct').innerText = comPct.replace('.', ',') + '%';
-                document.getElementById('donut').style.background = `conic-gradient(var(--color-acquis) ${comPct}%, var(--bg-card) 0%)`;
+                document.getElementById('donut').style.background = `conic-gradient(var(--color-acquis) ${comPct}%, var(--bg-main) 0%)`;
                 document.getElementById('gauge-acquis').innerText = stats.com_acquis;
                 document.getElementById('gauge-total').innerText = stats.com_total;
                 document.getElementById('gauge-restant').innerText = stats.com_total - stats.com_acquis;
 
-                // Dessin carte
-                fetch(geojsonUrl)
+                // 1. Charger et dessiner les départements limitrophes d'abord (en arrière-plan)
+                fetch(deptsUrl)
                     .then(response => response.json())
-                    .then(geo => {
-                        const layer = L.geoJSON(geo, {
-                            style: function(feature) {
-                                const insee = feature.properties.code;
-                                const isAcquis = mapData[insee] ? mapData[insee].acquis : false;
-                                return {
-                                    fillColor: isAcquis ? 'var(--color-acquis)' : 'var(--color-vide)',
-                                    weight: 0.5,
-                                    color: 'var(--color-map-border)',
-                                    fillOpacity: 1
-                                };
-                            },
+                    .then(depts => {
+                        L.geoJSON(depts, {
+                            filter: function(feature) { return limitrophes.includes(feature.properties.code); },
+                            style: { fillColor: '#0a0a0f', fillOpacity: 0.7, color: 'var(--color-accent)', weight: 1, dashArray: '4, 8' },
                             onEachFeature: function(feature, layer) {
-                                const insee = feature.properties.code;
-                                const info = mapData[insee] || { pop: 0, sup: 0 };
-                                layer.bindPopup(`<b>${feature.properties.nom}</b><br>Population : ${formatNb(info.pop)} hab.<br>Superficie : ${formatNb(info.sup)} km²`);
+                                layer.bindTooltip(feature.properties.nom, { permanent: true, direction: 'center', className: 'cyber-tooltip' });
                             }
                         }).addTo(map);
-                        
-                        bounds.push(layer.getBounds());
-                        recentrerCarte();
+
+                        // 2. Charger et dessiner les Vosges par-dessus
+                        fetch(geojsonUrl)
+                            .then(response => response.json())
+                            .then(geo => {
+                                const layer = L.geoJSON(geo, {
+                                    style: function(feature) {
+                                        const insee = feature.properties.code;
+                                        const isAcquis = mapData[insee] ? mapData[insee].acquis : false;
+                                        return {
+                                            fillColor: isAcquis ? 'var(--color-acquis)' : 'var(--color-vide)',
+                                            weight: 1, color: 'var(--color-map-border)', fillOpacity: 0.9
+                                        };
+                                    },
+                                    onEachFeature: function(feature, layer) {
+                                        const insee = feature.properties.code;
+                                        const info = mapData[insee] || { pop: 0, sup: 0 };
+                                        layer.bindPopup(`<b>${feature.properties.nom}</b><br>Pop : ${formatNb(info.pop)}<br>Sup : ${formatNb(info.sup)} km²`);
+                                    }
+                                }).addTo(map);
+                                
+                                bounds.push(layer.getBounds());
+                                recentrerCarte();
+                            });
                     });
             }
         });
