@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collection Wikimasters - Vosges</title>
+    <!-- Chargement de la carte Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        /* Design inspiré du dashboard Isère (Thème sombre) */
+        body { 
+            background-color: #171624; 
+            color: #ffffff; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0; 
+            display: flex; 
+            height: 100vh;
+        }
+        #map { 
+            width: 70%; 
+            height: 100%; 
+            background-color: #171624;
+        }
+        #sidebar { 
+            width: 30%; 
+            padding: 30px; 
+            box-sizing: border-box; 
+            background-color: #1f1d33; 
+            border-left: 2px solid #2d2b4a;
+            overflow-y: auto;
+        }
+        h1 { 
+            color: #d1d0e5; 
+            font-size: 2.5em; 
+            margin-top: 0;
+            margin-bottom: 5px;
+            font-weight: normal;
+        }
+        h1 span { color: #e9a96e; font-size: 0.6em; font-weight: bold; vertical-align: middle; }
+        .subtitle { color: #8e8ca6; text-transform: uppercase; font-size: 0.8em; letter-spacing: 2px; margin-bottom: 30px; display: block; }
+        
+        .stat-card {
+            background-color: #26243d;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #383556;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .stat-info h3 { margin: 0 0 5px 0; font-size: 1.1em; color: #d1d0e5; }
+        .stat-info p { margin: 0; color: #8e8ca6; font-size: 0.85em; }
+        .stat-percent { font-size: 1.8em; font-weight: bold; color: #44c688; }
+        
+        /* Personnalisation de la bulle d'info sur la carte */
+        .leaflet-popup-content-wrapper { background: #26243d; color: white; }
+        .leaflet-popup-tip { background: #26243d; }
+    </style>
+</head>
+<body>
+
+    <div id="map"></div>
+    
+    <div id="sidebar">
+        <span class="subtitle">Collection Wikimasters</span>
+        <h1>Vosges <span>• 88</span></h1>
+        
+        <div class="stat-card">
+            <div class="stat-info">
+                <h3>Communes</h3>
+                <p><span id="com-acquis">0</span> / <span id="com-total">0</span></p>
+            </div>
+            <div class="stat-percent"><span id="com-pct">0</span>%</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-info">
+                <h3>Habitants</h3>
+                <p><span id="hab-acquis">0</span> / <span id="hab-total">0</span></p>
+            </div>
+            <div class="stat-percent"><span id="hab-pct">0</span>%</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-info">
+                <h3>Superficie</h3>
+                <p><span id="sup-acquis">0</span> / <span id="sup-total">0</span> km²</p>
+            </div>
+            <div class="stat-percent"><span id="sup-pct">0</span>%</div>
+        </div>
+    </div>
+
+    <!-- Scripts pour la carte et la lecture du CSV -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    
+    <script>
+        // Ton lien Google Sheets
+        const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ90ccINllWxVBGYRzSHaKCT_rRarpd1N5wpzu84rUZP5EJ8MViK8U0f-aFuKswcPOJm3w8c5smEw97/pub?gid=0&single=true&output=csv";
+        // Lien direct vers le fond de carte GeoJSON des Vosges
+        const geojsonUrl = "https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/departements/88-vosges/communes-88-vosges.geojson";
+
+        // Initialisation de la carte (centrée sur les Vosges)
+        const map = L.map('map', { zoomControl: true }).setView([48.19, 6.45], 9);
+
+        // Lecture de ton fichier Sheets
+        Papa.parse(csvUrl, {
+            download: true,
+            header: true,
+            complete: function(results) {
+                const data = results.data;
+                let stats = { com_acquis: 0, com_total: 0, hab_acquis: 0, hab_total: 0, sup_acquis: 0, sup_total: 0 };
+                let mapData = {}; // Dictionnaire pour lier INSEE -> Statut acquis
+
+                // Calcul des statistiques
+                data.forEach(row => {
+                    if(!row.insee) return; // Ignore les lignes vides
+                    const acquis = parseInt(row.acquis) === 1;
+                    const pop = parseFloat(row.population) || 0;
+                    const sup = (parseFloat(row.superficie) || 0) / 100; // Conversion hectares en km²
+
+                    stats.com_total++;
+                    stats.hab_total += pop;
+                    stats.sup_total += sup;
+
+                    if(acquis) {
+                        stats.com_acquis++;
+                        stats.hab_acquis += pop;
+                        stats.sup_acquis += sup;
+                    }
+                    mapData[row.insee] = { acquis: acquis, pop: pop, sup: sup };
+                });
+
+                // Mise à jour de l'affichage à droite (Formatage à la française avec espaces)
+                const formatNb = (num) => Math.round(num).toLocaleString('fr-FR');
+                
+                document.getElementById('com-total').innerText = stats.com_total;
+                document.getElementById('com-acquis').innerText = stats.com_acquis;
+                document.getElementById('com-pct').innerText = ((stats.com_acquis / stats.com_total) * 100).toFixed(1).replace('.', ',');
+
+                document.getElementById('hab-total').innerText = formatNb(stats.hab_total);
+                document.getElementById('hab-acquis').innerText = formatNb(stats.hab_acquis);
+                document.getElementById('hab-pct').innerText = ((stats.hab_acquis / stats.hab_total) * 100).toFixed(1).replace('.', ',');
+
+                document.getElementById('sup-total').innerText = formatNb(stats.sup_total);
+                document.getElementById('sup-acquis').innerText = formatNb(stats.sup_acquis);
+                document.getElementById('sup-pct').innerText = ((stats.sup_acquis / stats.sup_total) * 100).toFixed(1).replace('.', ',');
+
+                // Chargement du dessin des communes
+                fetch(geojsonUrl)
+                    .then(response => response.json())
+                    .then(geo => {
+                        L.geoJSON(geo, {
+                            style: function(feature) {
+                                const insee = feature.properties.code;
+                                const communeData = mapData[insee];
+                                const isAcquis = communeData ? communeData.acquis : false;
+                                
+                                return {
+                                    fillColor: isAcquis ? '#44c688' : '#26243d', // Vert si acquis, gris foncé sinon
+                                    weight: 1, // Épaisseur des bordures
+                                    color: '#171624', // Couleur des bordures
+                                    fillOpacity: 1
+                                };
+                            },
+                            onEachFeature: function(feature, layer) {
+                                // Petite bulle d'info au clic
+                                const insee = feature.properties.code;
+                                const nom = feature.properties.nom;
+                                const info = mapData[insee];
+                                if(info) {
+                                    layer.bindPopup(`<b>${nom}</b><br>Population: ${formatNb(info.pop)}<br>Superficie: ${formatNb(info.sup)} km²`);
+                                }
+                            }
+                        }).addTo(map);
+                    });
+            }
+        });
+    </script>
+</body>
+</html>
