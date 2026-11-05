@@ -12,7 +12,6 @@ body{
     display: flex; flex-direction: column; height: 100vh; overflow: hidden;
 }
 
-/* Sélecteur de collection (Boutons en haut à gauche) */
 .region-switcher { position: absolute; top: 22px; left: 28px; z-index: 10; display: flex; gap: 10px; }
 .btn-region {
     background: rgba(12, 19, 34, 0.6); color: var(--mute); border: 1px solid var(--mute);
@@ -128,13 +127,12 @@ footer{flex: 0 0 20px; text-align:center; color:var(--mute); font:.78rem system-
 <script src="https://d3js.org/d3.v7.min.js"></script>
     
 <script>
-    // --- CONFIGURATION DES COLLECTIONS ---
     const collections = {
         'vosges': {
             titre: "Vosges", suffixe: "88",
             csv: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ90ccINllWxVBGYRzSHaKCT_rRarpd1N5wpzu84rUZP5EJ8MViK8U0f-aFuKswcPOJm3w8c5smEw97/pub?gid=0&single=true&output=csv",
             geo: "https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/departements/88-vosges/communes-88-vosges.geojson",
-            supDiv: 100, // Conversion Hectares -> km² pour la base INSEE
+            supDiv: 100, 
             hasBg: true, bgGeo: "https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/departements.geojson",
             bgFilter: ['52', '54', '55', '67', '68', '70', '90'],
             footer: "🌲 Forêt Noire · 🎿 Gérardmer · 🏔️ Massif des Vosges · 🍯 Sapin"
@@ -143,7 +141,7 @@ footer{flex: 0 0 20px; text-align:center; color:var(--mute); font:.78rem system-
             titre: "Luxembourg", suffixe: "LU",
             csv: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ90ccINllWxVBGYRzSHaKCT_rRarpd1N5wpzu84rUZP5EJ8MViK8U0f-aFuKswcPOJm3w8c5smEw97/pub?output=csv",
             geo: "https://raw.githubusercontent.com/Vivik88/wikimasters-luxembourg/refs/heads/main/communes4326.geojson",
-            supDiv: 1, // Wikipédia Lux donne généralement des km² directement
+            supDiv: 1, 
             hasBg: false,
             footer: "🏰 Vianden · 🍷 Moselle · 🌳 Mullerthal · 🇱🇺 Grand-Duché"
         }
@@ -153,15 +151,14 @@ footer{flex: 0 0 20px; text-align:center; color:var(--mute); font:.78rem system-
     let globalStats = { com_acquis: 0, com_total: 0, hab_acquis: 0, hab_total: 0, sup_acquis: 0, sup_total: 0 };
     let currentMode = 'communes';
     let activeRegion = 'vosges';
-    let initTransform = null;
 
     const svg = d3.select("#map");
     const tip = d3.select("#tip");
     
-    // Initialisation Zoom (on rattachera le groupe 'g' dynamiquement)
     const zoom = d3.zoom().scaleExtent([1, 15]).on("zoom", (event) => { d3.select("#map g.zoom-layer").attr("transform", event.transform); });
     svg.call(zoom);
 
+    // Initialisation nue, D3 s'occupera du centrage via fitExtent
     const projection = d3.geoMercator();
     const pathGenerator = d3.geoPath().projection(projection);
 
@@ -203,27 +200,26 @@ footer{flex: 0 0 20px; text-align:center; color:var(--mute); font:.78rem system-
     });
 
     window.resetPanZoom = function() {
-        if(initTransform) svg.transition().duration(750).call(zoom.transform, initTransform);
+        svg.transition().duration(750).call(zoom.transform, d3.zoomIdentity);
     }
 
-    // Le moteur de changement de collection
     window.loadRegion = function(regionKey) {
         activeRegion = regionKey;
         const config = collections[regionKey];
 
-        // Mise à jour de l'interface
         document.getElementById('btn-vosges').className = regionKey === 'vosges' ? 'btn-region active' : 'btn-region';
         document.getElementById('btn-lux').className = regionKey === 'luxembourg' ? 'btn-region active' : 'btn-region';
         document.getElementById('main-title').innerHTML = `${config.titre} <em>·</em> <sup>${config.suffixe}</sup>`;
         document.getElementById('ribbon-text').innerText = config.titre.toUpperCase();
         document.getElementById('footer-text').innerText = config.footer;
 
-        // Réinitialisation des stats
         globalStats = { com_acquis: 0, com_total: 0, hab_acquis: 0, hab_total: 0, sup_acquis: 0, sup_total: 0 };
         mapData = {};
-        svg.selectAll("*").remove(); // Nettoie l'ancienne carte
+        svg.selectAll("*").remove(); 
+        
+        // Remise à zéro du zoom pour éviter le conflit
+        svg.call(zoom.transform, d3.zoomIdentity);
 
-        // Lecture du Sheets
         Papa.parse(config.csv, {
             download: true,
             header: true,
@@ -246,7 +242,6 @@ footer{flex: 0 0 20px; text-align:center; color:var(--mute); font:.78rem system-
 
                 updateDisplay();
 
-                // Chargement de la géométrie
                 if(config.hasBg) {
                     Promise.all([d3.json(config.bgGeo), d3.json(config.geo)]).then(([bgGeo, mainGeo]) => {
                         const filteredBg = bgGeo.features.filter(f => config.bgFilter.includes(f.properties.code));
@@ -260,17 +255,10 @@ footer{flex: 0 0 20px; text-align:center; color:var(--mute); font:.78rem system-
     }
 
     function drawSVG(mainGeo, bgGeo) {
+        // C'EST ICI LA CORRECTION MAGIQUE : On force la projection à tenir dans la boîte de 800x800, avec 40px de marge
+        projection.fitExtent([[40, 40], [760, 760]], mainGeo);
+
         const g = svg.append("g").attr("class", "zoom-layer");
-        
-        // Centrage dynamique exclusif sur la zone principale (ignorant le fond)
-        const bounds = pathGenerator.bounds(mainGeo);
-        const dx = bounds[1][0] - bounds[0][0];
-        const dy = bounds[1][1] - bounds[0][1];
-        const x = (bounds[0][0] + bounds[1][0]) / 2;
-        const y = (bounds[0][1] + bounds[1][1]) / 2;
-        const scale = Math.max(1, Math.min(35, 0.85 / Math.max(dx / 800, dy / 800)));
-        const translate = [800 / 2 - scale * x, 800 / 2 - scale * y];
-        initTransform = d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale);
 
         if(bgGeo) {
             g.selectAll("path.bg").data(bgGeo).enter().append("path").attr("d", pathGenerator).attr("class", "bg");
@@ -300,11 +288,8 @@ footer{flex: 0 0 20px; text-align:center; color:var(--mute); font:.78rem system-
              tip.style("left", (event.clientX - cr.left + 15) + "px").style("top", (event.clientY - cr.top + 15) + "px");
          })
          .on("mouseout", function() { tip.style("display", "none"); });
-
-         svg.call(zoom.transform, initTransform);
     }
 
-    // Lancer les Vosges au premier chargement
     loadRegion('vosges');
 
 </script>
